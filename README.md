@@ -1,4 +1,4 @@
-Net::Rcon
+Net::RCON
 =========
 
 This module provides an interface to an RCON (remote console) server.
