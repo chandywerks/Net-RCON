@@ -65,10 +65,8 @@ sub send {
 sub _send_rcon {
 	my ( $self, $type, $message ) = @_;
 
-	$self->{id}++;
-
 	# Build RCON packet
-	my $data = pack( "VV", $self->{id}, $type ) . $message . pack("xx");
+	my $data = pack( "VV", 1, $type ) . $message . pack("xx");
 
 	# Prepend packet size
 	$data = pack( "V", length( $data ) ).$data;
@@ -87,7 +85,7 @@ sub _recv_rcon {
 	my ( $size, $response_id, $response_type, $response_body ) = unpack( "VVVa*", $response );
 
 	# Make sure the response id is what we sent
-	if( $response_id == $self->{id} && $response_type == $type && $size >= 10 && $size <= 4096 ) {
+	if( $response_id == 1 && $response_type == $type && $size >= 10 && $size <= 4096 ) {
 		return $response_body;
 	} else {
 		return undef;
