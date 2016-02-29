@@ -19,6 +19,7 @@ sub new {
 		host     => $args->{host},
 		port     => $args->{port},
 		password => $args->{password},
+		id       => 0
 	};
 
 	$self->{sock} = IO::Socket::INET->new(
@@ -30,10 +31,10 @@ sub new {
 	my $object = bless ( $self, $class );
 
 	# Send a SERVERDATA_AUTH packet
-	$object->_send_rcon( 1, SERVERDATA_AUTH, $self->{password} );
+	$object->_send_rcon( SERVERDATA_AUTH, $self->{password} );
 
 	# Check is SERVERDATA_AUTH_RESPONSE came back as valid
-	if( !$self->_recv_rcon( 1, SERVERDATA_AUTH_RESPONSE ) ) {
+	if( !$self->_recv_rcon( SERVERDATA_AUTH_RESPONSE ) ) {
 		warn "Authentication to the RCON server failed";
 		return undef;
 	}
@@ -50,8 +51,8 @@ sub DESTROY {
 sub send {
 	my ( $self, $command ) = @_;
 
-	$self->_send_rcon( 1, SERVERDATA_EXECCOMMAND, $command );
-	my $response = $self->_recv_rcon( 1, SERVERDATA_RESPONSE_VALUE );
+	$self->_send_rcon( SERVERDATA_EXECCOMMAND, $command );
+	my $response = $self->_recv_rcon( SERVERDATA_RESPONSE_VALUE );
 
 	if( $response ) {
 		return $response;
@@ -62,35 +63,84 @@ sub send {
 }
 
 sub _send_rcon {
-	my ( $self, $id, $type, $message ) = @_;
+	my ( $self, $type, $message ) = @_;
+
+	$self->{id}++;
 
 	# Build RCON packet
-	my $data = pack("VV", $id, $type) . $message . pack("xx");
+	my $data = pack( "VV", $self->{id}, $type ) . $message . pack("xx");
 
 	# Prepend packet size
-	$data = pack("V", length($data)).$data;
+	$data = pack( "V", length( $data ) ).$data;
 
-	my $size = $self->{sock}->send( $data );
+	return $self->{sock}->send( $data );
 }
 
 sub _recv_rcon {
-	my ( $self, $id, $type ) = @_;
+	my ( $self, $type ) = @_;
 
 	# Get response
 	my $response = "";
 	$self->{sock}->recv( $response, 4096 );
 
 	# Unpack response packet
-	my ($size, $response_id, $response_type, $response_body) = unpack( "VVVa*", $response );
+	my ( $size, $response_id, $response_type, $response_body ) = unpack( "VVVa*", $response );
 
 	# Make sure the response id is what we sent
-	if( $response_id == $id && $response_type == $type && $size >= 10 && $size <= 4096) {
-		# TODO it's possible that the response cannot fit in 4096 bytes
-		# we eventually need to check for more response here
-
+	if( $response_id == $self->{id} && $response_type == $type && $size >= 10 && $size <= 4096 ) {
 		return $response_body;
 	} else {
 		return undef;
 	}
 }
 1;
+
+# ABSTRACT: This module provides an interface to an RCON (remote console) server. RCON is typically implemented by game servers to allow servers admins to control their game servers without direct access to the machine the server is running on. This module is based on the spec detailed here, https://developer.valvesoftware.com/wiki/Source_RCON_Protocol
+
+=head1 SYNOPSIS
+
+	use Net::RCON;
+
+	my $rcon = Net::RCON->new({
+		host => "127.0.0.1",
+		port => "27015",
+		password => "password"
+	});
+
+	print $rcon->send("users");
+
+=head1 METHODS
+
+=over
+
+=item new()
+
+Authenticates with the RCON server and, if successful, returns a new Net::RCON object. If unable to connect or authenticate it returns undef.
+
+=over
+
+=item host
+
+IP address or hostname of the RCON server.
+
+=item port
+
+RCON port.
+
+=item password
+
+RCON password.
+
+=back
+
+=back
+
+=over
+
+=item send()
+
+Sends an RCON command and returns the response. If there is no response it returns an empty string. If there was an error it returns undef.
+
+=back
+
+=cut

@@ -5,6 +5,8 @@ This module provides an interface to an RCON (remote console) server.
 
 RCON is typically implemented by game servers to allow servers admins to control their game servers without direct access to the machine the server is running on.
 
+This module is based on the spec detailed here, https://developer.valvesoftware.com/wiki/Source_RCON_Protocol
+
 See perldoc for usage details.
 
 ### INSTALLATION
