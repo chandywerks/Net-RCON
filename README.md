@@ -23,7 +23,7 @@ If you wish to install this module manually download the [tar.gz package](https:
 
 ### BUILDING PACKAGE FROM GIT
 
-If you wish the build a package from the git repository you will need git and the Dist::Zilla application along with the PodWeaver plugin.
+If you wish the build a package from the git repository you will need git and the Dist::Zilla application along with the Dist::Zilla::Plugin::PodWeaver and Dist::Zilla::Plugin::GithubMeta plugins.
 
 To build a package from git:
 
