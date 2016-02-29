@@ -27,7 +27,6 @@ If you wish the build a package from the git repository you will need git and th
 	Dist::Zilla
 	Dist::Zilla::Plugin::PodWeaver
 	Dist::Zilla::Plugin::GithubMeta
-	Dist::Zilla::PluginBundle::Git
 
 To build a package from git:
 
