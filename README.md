@@ -24,9 +24,10 @@ If you wish to install this module manually download the [tar.gz package](https:
 ### BUILDING PACKAGE FROM GIT
 
 If you wish the build a package from the git repository you will need git and the following,
-	Dist::Zilla
-	Dist::Zilla::Plugin::PodWeaver
-	Dist::Zilla::Plugin::GithubMeta
+
+* Dist::Zilla
+* Dist::Zilla::Plugin::PodWeaver
+* Dist::Zilla::Plugin::GithubMeta
 
 To build a package from git:
 
@@ -42,7 +43,7 @@ To install the built package:
 
 ### DEPENDENCIES
 
-* IO::Socket;
+* IO::Socket
 
 ### AUTHOR
 
