@@ -32,6 +32,12 @@ sub new {
 
 	# Send a SERVERDATA_AUTH packet
 	$object->_send_rcon( SERVERDATA_AUTH, $self->{password} );
+	
+	# We should get an empty SERVERDATA_RESPONSE_VALUE packet first
+	if( !$self->_recv_rcon( SERVERDATA_RESPONSE_VALUE ) ) {
+		warn "Authentication to the RCON server failed - no reply from server";
+		return undef;
+	}
 
 	# Check is SERVERDATA_AUTH_RESPONSE came back as valid
 	if( !$self->_recv_rcon( SERVERDATA_AUTH_RESPONSE ) ) {
